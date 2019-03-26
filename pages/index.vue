@@ -1,50 +1,45 @@
 <template>
   <section class="container">
-    <div>
-      <logo/>
-      <h1 class="title">
-        iterpro
-      </h1>
-      <h2 class="subtitle">
-        My mind-blowing Nuxt.js project
-      </h2>
-      <div class="links">
-        <a
-          href="https://nuxtjs.org/"
-          target="_blank"
-          class="button--green">Documentation</a>
-        <a
-          href="https://github.com/nuxt/nuxt.js"
-          target="_blank"
-          class="button--grey">GitHub</a>
-      </div>
-    </div>
-    <OperatorHome />
+    <h1 v-if="!isOperator && !isEmployee">Welcome, please login or signup</h1>
+    <EmployeeHome
+      v-if="isEmployee"
+      :employee="employee"/>
+    <OperatorHome
+      v-if="isOperator"
+      :employees="employees"/>
   </section>
 </template>
 
 <script>
-import Logo from '~/components/Logo.vue'
+import EmployeeHome from '~/components/EmployeeHome.vue'
 import OperatorHome from '~/components/OperatorHome.vue'
 
 export default {
+  middlewares: ['check-auth'],
   components: {
-    Logo,
+    EmployeeHome,
     OperatorHome
+  },
+  async asyncData({ $axios, store }) {
+    const employees = await $axios.$get("employees")
+    let employee  = null
+    if (store.state.auth) {
+      employee = await $axios.$get("email/" + store.state.auth.username)
+    }
+    return { employees, employee }
+  },
+  computed: {
+    isOperator() {
+      return this.$store.getters.isAuthenticated && this.$store.state.auth.role === 'operator'
+    },
+    isEmployee() {
+      return this.$store.getters.isAuthenticated && this.$store.state.auth.role === 'employee'
+    }
   }
 }
 </script>
 
 <style>
-
-.container {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
 .title {
   font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
     'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;

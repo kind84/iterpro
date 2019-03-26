@@ -36,6 +36,13 @@ html {
   margin: 0;
 }
 
+body {
+  display: grid;
+  grid-template-areas: "header"
+                       "body";
+  grid-template-rows: 3rem auto
+}
+
 .button--green {
   display: inline-block;
   border-radius: 4px;
