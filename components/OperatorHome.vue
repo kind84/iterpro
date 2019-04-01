@@ -29,11 +29,6 @@ export default {
 </script>
 
 <style scoped>
-.operator-container {
-  width: 50%;
-  margin: 1rem;
-}
-
 .employees-list {
   list-style: none;
   display: flex;

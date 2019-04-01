@@ -3,10 +3,12 @@
     <h1 v-if="!isOperator && !isEmployee">Welcome, please login or signup</h1>
     <EmployeeHome
       v-if="isEmployee"
-      :employee="employee"/>
+      :employee="employee"
+      class="home-container" />
     <OperatorHome
       v-if="isOperator"
-      :employees="employees"/>
+      :employees="employees"
+      class="home-container" />
   </section>
 </template>
 
@@ -15,7 +17,7 @@ import EmployeeHome from '~/components/EmployeeHome.vue'
 import OperatorHome from '~/components/OperatorHome.vue'
 
 export default {
-  middlewares: ['check-auth'],
+  middleware: ['check-auth'],
   components: {
     EmployeeHome,
     OperatorHome
@@ -23,7 +25,7 @@ export default {
   async asyncData({ $axios, store }) {
     const employees = await $axios.$get("employees")
     let employee  = null
-    if (store.state.auth) {
+    if (store.state.auth && store.state.auth.role === 'employee') {
       employee = await $axios.$get("email/" + store.state.auth.username)
     }
     return { employees, employee }
@@ -60,5 +62,10 @@ export default {
 
 .links {
   padding-top: 15px;
+}
+
+.home-container {
+  width: 20rem;
+  margin: 1rem;
 }
 </style>

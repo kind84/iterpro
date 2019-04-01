@@ -34,7 +34,11 @@ export default {
   methods: {
     logout() {
       this.$store.dispatch('logout')
+      localStorage.removeItem('token')
+      localStorage.removeItem('refresh')
       Cookie.remove('token')
+      Cookie.remove('refresh')
+      this.$router.push('/')
     }
   }
 }

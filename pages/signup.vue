@@ -119,10 +119,13 @@ export default {
         role: this.role
       }).then(res => {
         console.log(res)
+        this.$store.dispatch("setToken", res.token)
         let token = jwt_decode(res.token)
         this.$store.dispatch('setAuth', token)
         localStorage.setItem("token", res.token)
+        localStorage.setItem("refresh", res.refreshToken)
         Cookie.set('token', res.token)  // session cookie
+        Cookie.set('refresh', res.refreshToken)  // session cookie
         this.$router.push('/')
       }).catch(err => {
         console.log(err)
