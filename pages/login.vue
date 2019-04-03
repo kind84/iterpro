@@ -44,20 +44,34 @@ export default {
         password: this.password
       }).then(res => {
         this.$store.dispatch("setToken", res.token)
+        this.$store.dispatch("setRefreshToken", res.refreshToken)
         let token = jwt_decode(res.token)
+        let rt = jwt_decode(res.refreshToken)
         this.$store.dispatch("setAuth", token)
         localStorage.setItem("token", res.token)
         localStorage.setItem("refresh", res.refreshToken)
         Cookie.set('token', res.token)  // session cookie
-        Cookie.set('refresh', res.refreshToken)  // session cookie
+        Cookie.set('refresh', res.refreshToken, { expires: new Date(rt.exp * 1000)})  // expiring cookie
         this.$router.push('/')
       }).catch(err => {
-        console.log(err)
-        if (err.response.status === 401) {
-          this.error = "Invalid username or password"
+          console.log(err)
+        if (err.response && err.response.status === 401) {
+            this.error = "Invalid username or password"
         }
       })
     }
+    // async login() {
+    //   this.error = null
+    //   return this.$auth.loginWith('local', {
+    //     data: {
+    //       email: this.email,
+    //         password: this.password
+    //       }
+    //     })
+    //     .catch(e => {
+    //       this.error = e + ''
+    //     })
+    // }
   }
 }
 </script>

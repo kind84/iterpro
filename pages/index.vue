@@ -9,6 +9,14 @@
       v-if="isOperator"
       :employees="employees"
       class="home-container" />
+    <nuxt-child
+      v-if="isEmployee"
+      :employee="employee"
+      class="home-container" />
+    <nuxt-child
+      v-if="isOperator"
+      :employees="employees"
+      class="home-container" />
   </section>
 </template>
 

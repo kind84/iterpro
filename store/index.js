@@ -12,23 +12,23 @@ export const state = () => ({
 
 export const mutations = {
   setToken (state, token) {
-    console.log("setToken: " + JSON.stringify(token))
+    console.log(`[setToken] ${JSON.stringify(token)}`)
     state.token = token
   },
   setRefreshToken (state, token) {
-    console.log("setRefreshToken: " + JSON.stringify(token))
+    console.log(`[setRefreshToken] ${JSON.stringify(token)}`)
     state.refreshToken = token
   },
   setAuth (state, auth) {
-    console.log("setAuth: " + JSON.stringify(auth))
+    console.log(`[setAuth] ${JSON.stringify(auth)}`)
     state.auth = auth
   },
   setEmployee (state, employee) {
-    console.log("setEmployee: " + JSON.stringify(employee))
+    console.log(`[setEmployee] ${JSON.stringify(employee)}`)
     state.employee = employee
   },
   logout (state) {
-    console.log("logout")
+    console.log("[logout]")
     state.auth = null
   },
   setE2R (state, e2r) {
@@ -38,43 +38,52 @@ export const mutations = {
 
 export const actions = {
   nuxtServerInit({ commit, dispatch }, { req }) {
-    console.log("nuxtServerInit")
+    console.log("[nuxtServerInit]")
     let auth = null
     if (req.headers.cookie) {
       const parsed = cookieparser.parse(req.headers.cookie)
       try {
-        auth = jwt_decode(parsed.token)
-        if (!auth || new Date().getTime() > new Date(auth.exp * 1000).getTime()) {
+        if (parsed.token) {  // same session
+          auth = jwt_decode(parsed.token)
+          if (!auth || new Date().getTime() > new Date(auth.exp * 1000).getTime()) {
+            dispatch("refreshToken", parsed.refresh)
+            return
+          } else {
+            commit('setToken', parsed.token)
+            commit('setAuth', auth)
+          }
+        } else if (parsed.refresh) {  // new session
           dispatch("refreshToken", parsed.refresh)
+          commit('setRefreshToken', parsed.refresh)
           return
         }
-        commit('setToken', parsed.token)
-        commit('setRefreshToken', parsed.refresh)
-        commit('setAuth', auth)
       } catch (err) {
         console.log("unable to parse token: " + err)
       }
     }
   },
   initAuth ({ commit, dispatch }, req) {
-    console.log("initAuth")
+    console.log("[initAuth]")
     let auth = null
     let token = null
     let refreshToken = null
-    if (req) {
-      console.log("initAuth req: " + req.headers.cookie)
+    if (req) {  // server-side
+      console.log(`[initAuth] req: ${req.headers.cookie}`)
       if(!req.headers.cookie) {
-        return
-      }
-      const parsed = cookieparser.parse(req.headers.cookie)
-      if (!parsed || !parsed.token) {
         commit("logout")
         return
       }
-      token = parsed.token
+      const parsed = cookieparser.parse(req.headers.cookie)
+      if (!parsed || ( !parsed.token && !parsed.refresh)) {
+        commit("logout")
+        return
+      }
+      if (parsed.token) {  // same session
+        token = parsed.token
+        auth = jwt_decode(parsed.token)
+      }
       refreshToken = parsed.refresh
-      auth = jwt_decode(parsed.token)
-    } else {
+    } else {  // client-side
       const t = localStorage.getItem("token")
       const r = localStorage.getItem("refresh")
       if (!t || !r) {
@@ -86,40 +95,52 @@ export const actions = {
       auth = jwt_decode(token)
     }
     if (!auth || new Date().getTime() > new Date(auth.exp * 1000).getTime()) {
+      // new session
       dispatch("refreshToken", refreshToken)
     }
-    console.log("token: " + token)
-    console.log("Refresh token: " + refreshToken)
-    console.log("auth: " + JSON.stringify(auth))
-    if (auth.role === 'employee') {
+    console.log(`[initAuth] token: ${token}`)
+    console.log(`[initAuth] refresh token: ${refreshToken}`)
+    console.log(`[initAuth] auth: ${JSON.stringify(auth)}`)
+    if (auth && auth.role === 'employee') {
       this.$axios.$get('email/' + auth.username)
       .then(res => {
-        console.log("employee: " + JSON.stringify(res))
+        console.log(`[initAuth] employee: ${JSON.stringify(res)}`)
         commit('setEmployee', res)
       }).catch(err => {
         console.log(err)
       })
     }
-    commit('setToken', token)
+    if (token) {
+      console.log("[initAuth] => setToken")
+      commit('setToken', token)
+      console.log("[initAuth] => setAuth")
+      commit("setAuth", auth)
+    }
+    console.log("[initAuth] => setRefreshToken")
     commit('setRefreshToken', refreshToken)
-    commit("setAuth", auth)
   },
   refreshToken({ commit }, rt) {
-    console.log("Refresh token: " + rt)
+    console.log(`[refreshToken] rt: ${rt}`)
     this.$axios.setToken(rt, "Bearer")
     this.$axios.$get('refreshtoken')
     .then(res => {
-      if (process.server) {
-        // server-side: store new tokens in cookie
+      if (process.client) {
+        rt = jwt_decode(res.refreshToken)
+        console.log(`[refreshToken] token: ${JSON.stringify(res.token)}`)
+        console.log(`[refreshToken] refresh: ${JSON.stringify(rt)}`)
+        // store new tokens in cookie
         Cookie.set('token', res.token)  // session cookie
-        Cookie.set('refresh', res.refreshToken)  // session cookie
-      } else {
-        // client-side: store new tokens in localStorage
+        Cookie.set('refresh', res.refreshToken, { expires: new Date(rt.exp * 1000)})  // expiring cookie
+        // store new tokens in localStorage
         localStorage.setItem("token", res.token)
         localStorage.setItem("refresh", res.refreshToken)
       }
+      console.log("[refreshToken] => setToken")
       commit("setToken", res.token)
+      console.log("[refreshToken] => setRefreshToken")
+      commit("setRefreshToken", res.refreshToken)
       let token = jwt_decode(res.token)
+      console.log("[refreshToken] => setAuth")
       commit("setAuth", token)
     }).catch(err => {
       console.log(err)
@@ -128,8 +149,19 @@ export const actions = {
   setEmployee ({ commit }, employee) {
     commit('setEmployee', employee)
   },
+  updateEmployee ({ commit }, id) {
+    this.$axios.$get("employee/" + id)
+    .then(res => {
+      commit('setEmployee', res)
+    }).catch(err => {
+      console.log(err)
+    })
+  },
   setToken ({ commit }, token) {
     commit('setToken', token)
+  },
+  setRefreshToken ({ commit }, token) {
+    commit('setRefreshToken', token)
   },
   setAuth ({ commit }, auth) {
     commit('setAuth', auth)

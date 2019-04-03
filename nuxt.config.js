@@ -33,6 +33,7 @@ module.exports = {
   ** Plugins to load before mounting the App
   */
   plugins: [
+    // '~/plugins/auth.client.js'
   ],
 
   /*
@@ -40,7 +41,8 @@ module.exports = {
   */
   modules: [
     // Doc: https://github.com/nuxt-community/axios-module#usage
-    '@nuxtjs/axios'
+    '@nuxtjs/axios',
+    // '@nuxtjs/auth'
   ],
   /*
   ** Axios module configuration
@@ -51,6 +53,28 @@ module.exports = {
     proxyHeaders: false,
     credentials: false
   },
+  /*
+  ** Auth module
+  */
+  // auth: {
+  //   strategies: {
+  //     local: {
+  //       _scheme: '~/auth/refreshTokenScheme.js',
+  //       endpoints: {
+  //         login: { url: '/login', method: 'post', propertyName: 'token'},
+  //         refresh: {
+  //           url: '/refreshtoken',
+  //           method: 'get',
+  //           token: 'refreshToken',
+  //           expiresIn: 'expires_in'
+  //         },
+  //         logout: false,
+  //         user: false
+  //       },
+  //       refreshToken: true,
+  //     }
+  //   }
+  // },
 
   /*
   ** Build configuration
