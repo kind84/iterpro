@@ -2,11 +2,12 @@
   <div class="operator-container">
     <h1>Employees</h1>
     <ul class="employees-list">
-      <li
-        v-for="(employee, index) in employees"
-        :key="index"
-        class="employee-item"
-        @click="pushEmployee(employee)">{{ employee.firstName }} {{ employee.lastName }}</li>
+      <nuxt-link
+        v-for="employee in employees"
+        :key="employee.id"
+        :to="`/operator/employees/${employee.id}`"
+        tag="li"
+        class="employee-item">{{ employee.firstName }} {{ employee.lastName }}</nuxt-link>
     </ul>
   </div>
 </template>
@@ -14,11 +15,10 @@
 <script>
 export default {
   name: "Operator",
-  props: {
-    employees: {
-      type: Array,
-      required: true
-    }
+  middleware: ['check-auth'],
+  async asyncData({ $axios }) {
+    const employees = await $axios.$get("employees")
+    return { employees }
   },
   methods:{
     pushEmployee(e) {
@@ -30,6 +30,11 @@ export default {
 </script>
 
 <style scoped>
+.operator-container {
+  margin: 1rem;
+  width: 20rem;
+}
+
 .employees-list {
   list-style: none;
   display: flex;

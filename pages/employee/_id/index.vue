@@ -1,13 +1,13 @@
 <template>
-  <div>
+  <div class="employee-container">
     <h1>Feedback to send:</h1>
     <ul class="feedback-list">
       <nuxt-link
-        v-for="(e2r, index) in employee.employees2Review"
-        :to="'/feedback/' + e2r.id"
-        :key="index"
-        class="feedback-item"
-        @click.native="onFeedback(e2r)">{{ e2r.firstName }} {{ e2r.lastName }}
+        v-for="e2r in employee.employees2Review"
+        :key="e2r.id"
+        :to="`/employee/${$route.params.id}/feedback/${e2r.id}`"
+        tag="li"
+        class="feedback-item">{{ e2r.firstName }} {{ e2r.lastName }}
       </nuxt-link>
     </ul>
   </div>
@@ -16,21 +16,20 @@
 <script>
 export default {
   name: "Employee",
-  props: {
-    employee: {
-      type: Object,
-      required: true
-    }
-  },
-  methods: {
-    onFeedback(e2r) {
-      this.$store.dispatch('setE2R', e2r)
-    }
+  middleware: ['check-auth', 'auth'],
+  async asyncData({ $axios, route }) {
+    const employee = await $axios.$get(`employee/${route.params.id}`)
+    return { employee }
   }
 }
 </script>
 
 <style scoped>
+.employee-container {
+  margin: 1rem;
+  width: 20rem;
+}
+
 .feedback-list {
   display: flex;
   flex-direction: column;
@@ -50,6 +49,7 @@ export default {
 .feedback-item:hover,
 .feedback-item:active {
   background-color: #60cab1;
+  cursor: pointer;
 }
 </style>
 

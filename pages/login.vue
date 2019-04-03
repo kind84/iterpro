@@ -52,7 +52,7 @@ export default {
         localStorage.setItem("refresh", res.refreshToken)
         Cookie.set('token', res.token)  // session cookie
         Cookie.set('refresh', res.refreshToken, { expires: new Date(rt.exp * 1000)})  // expiring cookie
-        this.$router.push('/')
+        this.$router.go(-1)
       }).catch(err => {
           console.log(err)
         if (err.response && err.response.status === 401) {

@@ -50,7 +50,7 @@ export default {
       store.dispatch("updateEmployee", route.params.id)
     }
     const employees = await $axios.$get("employees")
-    const reviews = await $axios.$get("reviews/" + store.state.employee.id)
+    const reviews = await $axios.$get("reviews/" + route.params.id)
     return { reviews, employee, employees }
   },
   data() {

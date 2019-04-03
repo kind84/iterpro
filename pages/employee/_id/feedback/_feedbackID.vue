@@ -4,7 +4,7 @@
     <form
       class="feedback-form"
       @submit.prevent="onSubmit">
-      <label for="feedback">Feedback for {{ employee.firstName }} {{ employee.lastName }}</label>
+      <label for="feedback">Feedback for {{ e2r.firstName }} {{ e2r.lastName }}</label>
       <textarea
         id="feedback"
         v-model="feedback"
@@ -29,17 +29,16 @@ export default {
       score: 0
     }
   },
-  computed: {
-    employee() {
-      return this.$store.state.e2r
-    }
+  async asyncData({ $axios, route }){
+    const e2r = await $axios.$get(`employee/${route.params.feedbackID}`)
+    return { e2r }
   },
   methods: {
     onSubmit() {
       this.$axios.setToken(localStorage.getItem("token"), "Bearer")
       this.$axios.$post('sendfeedback', {
         authorID: this.$store.state.employee.id,
-        reviewedID: this.employee.id,
+        reviewedID: this.e2r.id,
         body: this.feedback,
         score: +this.score
       }).then(res => {

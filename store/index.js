@@ -30,6 +30,8 @@ export const mutations = {
   logout (state) {
     console.log("[logout]")
     state.auth = null
+    state.token = null
+    state.refreshToken = null
   },
   setE2R (state, e2r) {
     state.e2r = e2r
@@ -102,22 +104,31 @@ export const actions = {
     console.log(`[initAuth] refresh token: ${refreshToken}`)
     console.log(`[initAuth] auth: ${JSON.stringify(auth)}`)
     if (auth && auth.role === 'employee') {
-      this.$axios.$get('email/' + auth.username)
+      this.$axios.$get(`email/${auth.username}`)
       .then(res => {
         console.log(`[initAuth] employee: ${JSON.stringify(res)}`)
         commit('setEmployee', res)
+        if (token) {
+          console.log("[initAuth] => setToken")
+          commit('setToken', token)
+          console.log("[initAuth] => setAuth")
+          commit("setAuth", auth)
+        }
+        console.log("[initAuth] => setRefreshToken")
+        commit('setRefreshToken', refreshToken)
       }).catch(err => {
         console.log(err)
       })
+    } else {
+      if (token) {
+        console.log("[initAuth] => setToken")
+        commit('setToken', token)
+        console.log("[initAuth] => setAuth")
+        commit("setAuth", auth)
+      }
+      console.log("[initAuth] => setRefreshToken")
+      commit('setRefreshToken', refreshToken)
     }
-    if (token) {
-      console.log("[initAuth] => setToken")
-      commit('setToken', token)
-      console.log("[initAuth] => setAuth")
-      commit("setAuth", auth)
-    }
-    console.log("[initAuth] => setRefreshToken")
-    commit('setRefreshToken', refreshToken)
   },
   refreshToken({ commit }, rt) {
     console.log(`[refreshToken] rt: ${rt}`)
