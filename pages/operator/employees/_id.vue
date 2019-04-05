@@ -39,11 +39,13 @@
     <button
       v-if="showDropdown"
       @click="setReview">Confirm</button>
+    <button @click="deleteEmployee">Delete</button>
   </div>
 </template>
 
 <script>
 export default {
+  middleware: ['check-auth', 'auth'],
   async asyncData({ $axios, store, route }) {
     const employee = await $axios.$get("employee/" + route.params.id)
     if (store.state.employee == null) {
@@ -64,19 +66,31 @@ export default {
     es2r() {
       let ids = this.$store.state.employee.employees2Review.map(x => { return x.id })
       return this.employees.filter(e => {
-        return e.id !== this.$store.state.employee.id && !ids.includes(e.id)
+        return e.id !== this.employee.id && !ids.includes(e.id)
       })
     }
   },
   methods: {
     setReview() {
+      let token = localStorage.getItem("token")
+      console.log(`[Component setReview] token: ${token}`)
+      this.$axios.setToken(token, "Bearer")
       this.$axios.$post("set2review", {
         toReview: this.e2r.id,
         reviewer: this.employee.id
       }).then(res => {
         console.log(res)
         this.$store.dispatch("updateEmployee", this.employee.id)
-        this.reload = true
+        this.$forceUpdate()
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    deleteEmployee() {
+      this.$axios.$post(`deleteemployee/${this.employee.id}`)
+      .then(res => {
+        console.log(res)
+        this.$router.go(-1)
       }).catch(err => {
         console.log(err)
       })

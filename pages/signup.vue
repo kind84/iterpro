@@ -14,14 +14,14 @@
       <input
         id="lastname"
         v-model="lastName"
-        type="text">
+        type="text"><span v-if="errors['lastName']">{{ errors['lastName'] }}</span>
       <label
         :class="{'error-msg': error !== null}"
         for="email">Email: </label>
       <input
         id="email"
         :style="style"
-        v-model.lazy="email"
+        v-model="email"
         :pattern="emailPattern">
       <div
         v-if="available"
@@ -103,11 +103,9 @@ export default {
 
       if (this.firstName === "") {
         this.errors['firstName'] = 'First name required'
-        return
       }
       if (this.lastName === "") {
         this.errors['lastName'] = 'Last name required'
-        return
       }
     },
     onSubmit() {
@@ -151,10 +149,10 @@ h1 {
   margin-top: 1rem;
   display: grid;
   grid-template-areas: "label input flag";
-  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-columns: 6rem 2fr 2fr;
   grid-auto-rows: 1.5rem;
   grid-gap: 1rem;
-  width: 50%;
+  width: 80%;
 }
 
 label {

@@ -9,13 +9,18 @@
         tag="li"
         class="employee-item">{{ employee.firstName }} {{ employee.lastName }}</nuxt-link>
     </ul>
+    <br>
+    <nuxt-link
+      :to="'/operator/employees/new'"
+      tag="button"
+      class="add-button">Add employee</nuxt-link>
   </div>
 </template>
 
 <script>
 export default {
   name: "Operator",
-  middleware: ['check-auth'],
+  middleware: ['check-auth', 'auth'],
   async asyncData({ $axios }) {
     const employees = await $axios.$get("employees")
     return { employees }

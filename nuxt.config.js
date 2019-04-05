@@ -34,6 +34,7 @@ module.exports = {
   */
   plugins: [
     // '~/plugins/auth.client.js'
+    '~/plugins/refreshToken.js'
   ],
 
   /*

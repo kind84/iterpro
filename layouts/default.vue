@@ -43,6 +43,10 @@ body {
   grid-template-rows: 3rem auto
 }
 
+button:hover {
+  cursor: pointer;
+}
+
 .button--green {
   display: inline-block;
   border-radius: 4px;
