@@ -47,12 +47,12 @@
 export default {
   middleware: ['check-auth', 'auth'],
   async asyncData({ $axios, store, route }) {
-    const employee = await $axios.$get("employee/" + route.params.id)
-    if (store.state.employee == null) {
-      store.dispatch("updateEmployee", route.params.id)
-    }
+    const employee = await $axios.$get(`employee/${route.params.id}`)
+    // if (store.state.employee == null) {
+    //   store.dispatch("updateEmployee", route.params.id)
+    // }
     const employees = await $axios.$get("employees")
-    const reviews = await $axios.$get("reviews/" + route.params.id)
+    const reviews = await $axios.$get(`reviews/${route.params.id}`)
     return { reviews, employee, employees }
   },
   data() {
@@ -64,7 +64,7 @@ export default {
   },
   computed: {
     es2r() {
-      let ids = this.$store.state.employee.employees2Review.map(x => { return x.id })
+      let ids = this.employee.employees2Review.map(x => { return x.id })
       return this.employees.filter(e => {
         return e.id !== this.employee.id && !ids.includes(e.id)
       })
@@ -80,8 +80,11 @@ export default {
         reviewer: this.employee.id
       }).then(res => {
         console.log(res)
-        this.$store.dispatch("updateEmployee", this.employee.id)
-        this.$forceUpdate()
+        this.$axios.$get(`employee/${this.$route.params.id}`)
+        .then(res => {
+          this.employee = res
+          // this.$forceUpdate()
+        })
       }).catch(err => {
         console.log(err)
       })
