@@ -5,7 +5,7 @@
       <nuxt-link
         v-for="e2r in employee.employees2Review"
         :key="e2r.id"
-        :to="`/employee/${$route.params.id}/feedback/${e2r.id}`"
+        :to="`/employee/feedback/${e2r.id}`"
         tag="li"
         class="feedback-item">{{ e2r.firstName }} {{ e2r.lastName }}
       </nuxt-link>
@@ -17,8 +17,8 @@
 export default {
   name: "Employee",
   middleware: ['check-auth', 'auth'],
-  async asyncData({ $axios, route }) {
-    const employee = await $axios.$get(`employee/${route.params.id}`)
+  async asyncData({ $axios, store }) {
+    const employee = await $axios.$get(`email/${store.state.auth.username}`)
     return { employee }
   }
 }

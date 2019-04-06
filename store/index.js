@@ -161,6 +161,7 @@ export const actions = {
     commit('setEmployee', employee)
   },
   updateEmployee ({ commit }, id) {
+    console.log(`[Store action] updateEmployee - id: ${id}`)
     this.$axios.$get("employee/" + id)
     .then(res => {
       commit('setEmployee', res)

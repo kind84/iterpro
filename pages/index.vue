@@ -12,7 +12,7 @@
     <nuxt-link
       v-if="isEmployee"
       :employee="employee"
-      :to="`/employee/${employee.id}`"
+      :to="`/employee`"
       class="home-container"
       exact />
     <nuxt-link
