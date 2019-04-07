@@ -25,9 +25,11 @@
         class="review">{{ eIIr.firstName }} {{ eIIr.lastName }}</li>
     </ul>
     <br>
-    <button @click="showDropdown = !showDropdown">Add to review</button>
+    <button
+      v-if="es2r && es2r.length > 0"
+      @click="showDropdown = !showDropdown">Add to review</button>
     <select
-      v-if="showDropdown && es2r"
+      v-if="showDropdown && es2r && es2r.length > 0"
       id="employees"
       v-model="e2r"
       name="employees">
@@ -64,10 +66,15 @@ export default {
   },
   computed: {
     es2r() {
-      let ids = this.employee.employees2Review.map(x => { return x.id })
-      return this.employees.filter(e => {
-        return e.id !== this.employee.id && !ids.includes(e.id)
-      })
+      if (this.employee) {
+        let ids = ""
+        if (this.employee.employees2Review) {
+          ids = this.employee.employees2Review.map(x => { return x.id })
+        }
+        return this.employees.filter(e => {
+          return e.id !== this.employee.id && !ids.includes(e.id)
+        })
+      }
     }
   },
   methods: {

@@ -58,6 +58,7 @@ export default {
       }
     },
     onSubmit() {
+      this.$axios.setToken(localStorage.getItem("token"), "Bearer")
       this.$axios.$post('addemployee', {
         firstName: this.firstName,
         lastName: this.lastName,

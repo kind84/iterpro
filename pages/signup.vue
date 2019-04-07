@@ -84,7 +84,7 @@ export default {
           this.style = ''
         }).catch(err => {
           console.log("error")
-          if (err && err.response.status === 403) {
+          if (err && err.response &&  err.response.status === 403) {
             this.error = err.response.data
             this.style = "border-color: red"
             this.available = false
