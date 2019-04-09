@@ -66,7 +66,7 @@ export default {
   },
   computed: {
     es2r() {
-      if (this.employee) {
+      if (this.employee && this.employees) {
         let ids = ""
         if (this.employee.employees2Review) {
           ids = this.employee.employees2Review.map(x => { return x.id })
